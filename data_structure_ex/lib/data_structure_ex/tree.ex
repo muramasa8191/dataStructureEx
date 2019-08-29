@@ -73,10 +73,10 @@ defmodule DataStructureEx.Tree do
   Convert list to tree
 
   ## Examples
-    iex> DataStructureEx.Tree.to_tree([3, 1, 5, 2, 4])
+    iex> DataStructureEx.Tree.from_list([3, 1, 5, 2, 4])
     %DataStructureEx.Tree{right: %DataStructureEx.Tree{right: nil, left: %DataStructureEx.Tree{right: nil, left: nil, val: 4}, val: 5}, left: %DataStructureEx.Tree{right: %DataStructureEx.Tree{right: nil, left: nil, val: 2}, val: 1}, val: 3}
   """
-  def to_tree(list) do
+  def from_list(list) do
     tree = %DataStructureEx.Tree{val: hd(list)}
     Enum.reduce(tl(list), tree, fn v, t -> DataStructureEx.Tree.insert(t, v) end)
   end
@@ -85,12 +85,12 @@ defmodule DataStructureEx.Tree do
   
 
   ## Examples
-    iex> tree = DataStructureEx.Tree.to_tree([3, 1, 5, 2, 4])
+    iex> tree = DataStructureEx.Tree.from_list([3, 1, 5, 2, 4])
     iex> DataStructureEx.Tree.to_list(tree)
     [1, 2, 3, 4, 5]
 
 
-    iex> tree = DataStructureEx.Tree.to_tree([5, 4, 3, 2, 1])
+    iex> tree = DataStructureEx.Tree.from_list([5, 4, 3, 2, 1])
     iex> DataStructureEx.Tree.to_list(tree)
     [1, 2, 3, 4, 5]
   """
@@ -124,8 +124,9 @@ defmodule DataStructureEx.Tree do
       func_wrap = fn x, {state, a} -> if state == :cont, do: func.(x, a), else: {:cont, [x]++a} end
       :lists.foldl(func_wrap, acc, arr)
     end
-#    def slice(%DataStructureEx.Stack{data: arr}) do
-#      {:ok, length(arr), &Enumerable.List.slice(arr, &1, &2)}
-#    end
+    def slice(tree = %DataStructureEx.Stack{}) do
+      arr = DataStructureEx.Tree.to_list(tree)
+      {:ok, length(arr), &Enumerable.List.slice(arr, &1, &2)}
+   end
   end
 end

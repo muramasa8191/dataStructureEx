@@ -29,12 +29,12 @@ defmodule DataStructureEx do
     |> Kernel./(1_000_000)
     |> IO.inspect
 
-    :timer.tc(fn -> DataStructureEx.Tree.to_tree(arr) end)
+    :timer.tc(fn -> DataStructureEx.Tree.from_list(arr) end)
     |> elem(0)
     |> Kernel./(1_000_000)
     |> IO.inspect
 
-    tree = DataStructureEx.Tree.to_tree(arr)
+    tree = DataStructureEx.Tree.from_list(arr)
     :timer.tc(fn -> DataStructureEx.Tree.member?(tree, 5_000_000) end)
     |> elem(0)
     |> Kernel./(1_000_000)
@@ -53,7 +53,7 @@ defmodule DataStructureEx do
     |> Kernel./(1_000_000)
     |> IO.inspect
 
-    tree = DataStructureEx.Tree.to_tree(arr)
+    tree = DataStructureEx.Tree.from_list(arr)
     :timer.tc(fn -> DataStructureEx.Tree.member?(tree, 10_000_001) end)
     |> elem(0)
     |> Kernel./(1_000_000)

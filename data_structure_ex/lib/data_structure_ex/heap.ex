@@ -157,5 +157,106 @@ defmodule DataStructureEx.LeftistHeap do
     val = DataStructureEx.LeftistHeap.findMin(heap)
     [val] ++ DataStructureEx.LeftistHeap.to_list(DataStructureEx.LeftistHeap.deleteMin(heap))
   end
+end
 
+defmodule DataStructureEx.BinomialHeap do
+  defmodule Node do
+    defstruct rank: 0, val: 0, children: []
+  end
+  defstruct tree: []
+  defp tree(list) do
+    %DataStructureEx.BinomialHeap{tree: list}
+  end
+
+  @doc """
+  Link two nodes
+
+  ## Examples
+    iex> DataStructureEx.BinomialHeap.link(%DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: []}, %DataStructureEx.BinomialHeap.Node{rank: 1, val: 2, children: []})
+    %DataStructureEx.BinomialHeap.Node{rank: 2, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 2, children: []}]}
+  """
+  def link(node1 = %Node{rank: r, val: v1, children: c1}, node2 = %Node{val: v2, children: c2}) do
+    if v1 <= v2 do
+      %Node{rank: r + 1, val: v1, children: [node2]++c1 }
+    else
+      %Node{rank: r + 1, val: v2, children: [node1]++c2 }
+    end
+  end
+
+  defp rank(nil) do
+    0
+  end
+  defp rank(%Node{rank: r}) do
+    r
+  end
+
+  defp insTree(node, %DataStructureEx.BinomialHeap{tree: []}) do
+    tree([node])
+  end
+  defp insTree(node, %DataStructureEx.BinomialHeap{tree: [t | ts]}) do
+    if rank(node) < rank(t) do
+      tree([t]++ts)
+    else
+      insTree(link(node, t), tree(ts))
+    end
+  end
+  @doc """
+  Insert Node to the list
+
+  ## Examples
+    iex> DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{})
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}]}
+
+    iex> heap = DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{})
+    iex> DataStructureEx.BinomialHeap.insert(2, heap)
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 2}]}]}
+
+    iex> heap = DataStructureEx.BinomialHeap.insert(2, %DataStructureEx.BinomialHeap{})
+    iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
+    iex> DataStructureEx.BinomialHeap.insert(1, heap)
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 2, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}]}
+
+  """
+  def insert(val, ts = %DataStructureEx.BinomialHeap{}) do
+    insTree(%Node{rank: 0, val: val, children: []}, ts)
+  end
+
+  @doc """
+  Merge two heaps
+
+  ## Examples
+    iex> DataStructureEx.BinomialHeap.merge(DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{tree: []}), %DataStructureEx.BinomialHeap{tree: []})
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}]}
+
+    iex> DataStructureEx.BinomialHeap.merge(%DataStructureEx.BinomialHeap{tree: []}, DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{tree: []}))
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}]}
+
+    iex> heap1 = DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{tree: []})
+    iex> heap2 = DataStructureEx.BinomialHeap.insert(3, %DataStructureEx.BinomialHeap{tree: []})
+    iex> DataStructureEx.BinomialHeap.merge(heap1, heap2)
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}]}
+
+    iex> heap1 = DataStructureEx.BinomialHeap.insert(1, %DataStructureEx.BinomialHeap{tree: []})
+    iex> heap1 = DataStructureEx.BinomialHeap.insert(2, heap1)
+    iex> heap2 = DataStructureEx.BinomialHeap.insert(3, %DataStructureEx.BinomialHeap{tree: []})
+    iex> DataStructureEx.BinomialHeap.merge(heap1, heap2)
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}, %DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 2}]}]}
+
+  """
+  def merge(tree = %DataStructureEx.BinomialHeap{}, %DataStructureEx.BinomialHeap{tree: []}) do
+    tree
+  end
+  def merge(%DataStructureEx.BinomialHeap{tree: []}, tree = %DataStructureEx.BinomialHeap{}) do
+    tree
+  end
+  def merge(tree1 = %DataStructureEx.BinomialHeap{tree: [t1 | ts1]}, tree2 = %DataStructureEx.BinomialHeap{tree: [t2 | ts2]}) do
+    cond do
+      rank(t1) < rank(t2) ->
+        tree([t1] ++ merge(tree(ts1), tree2).tree)
+      rank(t2) < rank(t1) ->
+        tree([t2] ++ merge(tree1, tree(ts2)).tree)
+      true ->
+        insTree(link(t1, t2), merge(tree(ts1), tree(ts2)))
+    end
+  end
 end
