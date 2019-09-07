@@ -193,11 +193,11 @@ defmodule DataStructureEx.BinomialHeap do
   defp insTree(node, %DataStructureEx.BinomialHeap{tree: []}) do
     tree([node])
   end
-  defp insTree(node, %DataStructureEx.BinomialHeap{tree: [t | ts]}) do
+  defp insTree(node, ts = %DataStructureEx.BinomialHeap{tree: [t | ts1]}) do
     if rank(node) < rank(t) do
-      tree([t]++ts)
+      tree([node]++ts.tree)
     else
-      insTree(link(node, t), tree(ts))
+      insTree(link(node, t), tree(ts1))
     end
   end
   @doc """
@@ -214,7 +214,7 @@ defmodule DataStructureEx.BinomialHeap do
     iex> heap = DataStructureEx.BinomialHeap.insert(2, %DataStructureEx.BinomialHeap{})
     iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
     iex> DataStructureEx.BinomialHeap.insert(1, heap)
-    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 2, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}]}
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}, %DataStructureEx.BinomialHeap.Node{rank: 1, val: 2, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}]}
 
   """
   def insert(val, ts = %DataStructureEx.BinomialHeap{}) do
@@ -258,5 +258,119 @@ defmodule DataStructureEx.BinomialHeap do
       true ->
         insTree(link(t1, t2), merge(tree(ts1), tree(ts2)))
     end
+  end
+
+  @doc """
+  Get the tapple of node with minimum value and the tree without the node
+
+  ## Examples
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}]}
+    iex> DataStructureEx.BinomialHeap.removeMinTree(heap)
+    {%DataStructureEx.BinomialHeap.Node{rank: 0, val: 1}, %DataStructureEx.BinomialHeap{tree: []}}
+
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}]}
+    iex> DataStructureEx.BinomialHeap.removeMinTree(heap)
+    {%DataStructureEx.BinomialHeap.Node{rank: 1, val: 1, children: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 3}]}, %DataStructureEx.BinomialHeap{tree: []}}
+
+  """
+  def removeMinTree(%DataStructureEx.BinomialHeap{tree: []}) do
+    raise "empty"
+  end
+  def removeMinTree(%DataStructureEx.BinomialHeap{tree: [t]}) do
+    {t, tree([])}
+  end
+  def removeMinTree(%DataStructureEx.BinomialHeap{tree: [t | ts]}) do
+    {node, ts2} = removeMinTree(tree(ts))
+    if t.val <= node.val do 
+      {t, tree(ts)}
+    else 
+      {node, tree([t]++ts2.tree)}
+    end
+  end
+
+  @doc """
+  Find minimum element
+
+  ## Examples
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 5}]}
+    iex> heap = DataStructureEx.BinomialHeap.insert(4, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(2, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(6, heap)
+    iex> DataStructureEx.BinomialHeap.findMin(heap)
+    %DataStructureEx.BinomialHeap.Node{
+      children: [
+        %DataStructureEx.BinomialHeap.Node{
+          children: [
+            %DataStructureEx.BinomialHeap.Node{children: [], rank: 0, val: 5}
+          ],
+          rank: 1,
+          val: 4
+        },
+        %DataStructureEx.BinomialHeap.Node{children: [], rank: 0, val: 3}
+      ],
+      rank: 2,
+      val: 2
+    } 
+  """
+  def findMin(tree = %DataStructureEx.BinomialHeap{}) do
+    elem(DataStructureEx.BinomialHeap.removeMinTree(tree), 0)
+  end
+
+  @doc """
+  Delete minimum value in the Heap
+
+  ## examples
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 5}]}
+    iex> heap = DataStructureEx.BinomialHeap.insert(4, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(2, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(6, heap)
+    iex> DataStructureEx.BinomialHeap.deleteMin(heap)
+    %DataStructureEx.BinomialHeap{tree: [
+        %DataStructureEx.BinomialHeap.Node{val: 6, rank: 0},
+        %DataStructureEx.BinomialHeap.Node{
+          children: [%DataStructureEx.BinomialHeap.Node{children: [], rank: 0, val: 5}],
+          rank: 1,
+          val: 4
+        },
+        %DataStructureEx.BinomialHeap.Node{children: [], rank: 0, val: 3}
+        ]}
+
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 5}]}
+    iex> heap = DataStructureEx.BinomialHeap.insert(4, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(2, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(6, heap)
+    iex> heap = DataStructureEx.BinomialHeap.deleteMin(heap)
+    iex> heap = DataStructureEx.BinomialHeap.deleteMin(heap)
+    iex> DataStructureEx.BinomialHeap.deleteMin(heap)
+    %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{
+          children: [%DataStructureEx.BinomialHeap.Node{val: 6, rank: 0}], val: 5, rank: 1}]}
+  """
+  def deleteMin(tree = %DataStructureEx.BinomialHeap{}) do
+    {%DataStructureEx.BinomialHeap.Node{children: ts1}, ts2} = DataStructureEx.BinomialHeap.removeMinTree(tree)
+    DataStructureEx.BinomialHeap.merge(tree(ts1), ts2)
+  end
+
+  @doc """
+  Convert Heap int list
+
+  ## Examples
+    iex> heap = %DataStructureEx.BinomialHeap{tree: [%DataStructureEx.BinomialHeap.Node{rank: 0, val: 5}]}
+    iex> heap = DataStructureEx.BinomialHeap.insert(4, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(3, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(2, heap)
+    iex> heap = DataStructureEx.BinomialHeap.insert(6, heap)
+    iex> DataStructureEx.BinomialHeap.to_list(heap)
+    [2, 3, 4, 5, 6]
+  """
+  def to_list(%DataStructureEx.BinomialHeap{tree: []}) do
+    []
+  end
+  def to_list(tree = %DataStructureEx.BinomialHeap{}) do
+    min_val = findMin(tree)
+    ts = deleteMin(tree)
+    [min_val.val]++to_list(ts)
   end
 end

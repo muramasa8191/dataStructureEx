@@ -124,7 +124,7 @@ defmodule DataStructureEx.Tree do
       func_wrap = fn x, {state, a} -> if state == :cont, do: func.(x, a), else: {:cont, [x]++a} end
       :lists.foldl(func_wrap, acc, arr)
     end
-    def slice(tree = %DataStructureEx.Stack{}) do
+    def slice(tree = %DataStructureEx.Tree{}) do
       arr = DataStructureEx.Tree.to_list(tree)
       {:ok, length(arr), &Enumerable.List.slice(arr, &1, &2)}
    end
