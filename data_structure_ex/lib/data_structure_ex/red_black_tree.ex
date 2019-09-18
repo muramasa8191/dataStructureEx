@@ -113,7 +113,7 @@ defmodule DataStructureEx.RedBlackTree do
   end
 
   @doc """
-  Construct the Red Black Tree from the given list
+  Construct a Red Black Tree from the given list
 
   ## Examples
   iex> DataStructureEx.RedBlackTree.from_list([1, 2, 3, 4])
