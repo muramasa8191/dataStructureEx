@@ -4,21 +4,21 @@ defmodule DataStructureEx.SplayHeap do
     []
   end
 
-  defp partition_org(pivot, t) do
-    partition_org(pivot, t, &(&1 <= &2), &({&1, &2}))
+  defp partition(pivot, t) do
+    partition(pivot, t, &(&1 <= &2), &({&1, &2}))
   end
-  defp partition_org(_, [], _, fun) do
+  defp partition(_, [], _, fun) do
     fun.([], [])
   end
-  defp partition_org(pivot, t = [a, x, b], lteq, fun) do
+  defp partition(pivot, t = [a, x, b], lteq, fun) do
     if lteq.(x, pivot) do
       case b do
         [] -> fun.(t, [])
         [b1, y, b2] ->
           if lteq.(y, pivot) do
-            partition_org(pivot, b2, lteq, &(fun.([[a, x, b1], y, &1], &2)))
+            partition(pivot, b2, lteq, &(fun.([[a, x, b1], y, &1], &2)))
           else
-            partition_org(pivot, b1, lteq, &(fun.([a, x, &1], [&2, y, b2])))
+            partition(pivot, b1, lteq, &(fun.([a, x, &1], [&2, y, b2])))
           end
       end
     else
@@ -26,30 +26,30 @@ defmodule DataStructureEx.SplayHeap do
         [] -> fun.([], t)
         [a1, y, a2] ->
           if lteq.(y, pivot) do
-            partition_org(pivot, a2, lteq, &(fun.([a1, y, &1], [&2, x, b])))
+            partition(pivot, a2, lteq, &(fun.([a1, y, &1], [&2, x, b])))
           else
-            partition_org(pivot, a1, lteq, &(fun.(&1, [&2, y, [a2, x, b]])))
+            partition(pivot, a1, lteq, &(fun.(&1, [&2, y, [a2, x, b]])))
           end
       end
     end
   end
 
-  defp partition(pivot, t) do
-    partition(pivot, t, &(&1 <= &2))
+  defp partition_org(pivot, t) do
+    partition_org(pivot, t, &(&1 <= &2))
   end
-  defp partition(_, [], _) do
+  defp partition_org(_, [], _) do
     {[], []}
   end
-  defp partition(pivot, t = [a, x, b], lteq) do
+  defp partition_org(pivot, t = [a, x, b], lteq) do
     if lteq.(x, pivot) do
       case b do
         [] -> {t, []}
         [b1, y, b2] ->
           if lteq.(y, pivot) do
-            {small, big} = partition(pivot, b2, lteq)
+            {small, big} = partition_org(pivot, b2, lteq)
             {[[a, x, b1], y, small], big}
           else
-            {small, big} = partition(pivot, b1, lteq)
+            {small, big} = partition_org(pivot, b1, lteq)
             {[a, x, small], [big, y, b2]}
           end
       end
@@ -58,10 +58,10 @@ defmodule DataStructureEx.SplayHeap do
         [] -> {[], t}
         [a1, y, a2] ->
           if lteq.(y, pivot) do
-            {small, big} = partition(pivot, a2, lteq)
+            {small, big} = partition_org(pivot, a2, lteq)
             {[a1, y, small], [big, x, b]}
           else
-            {small, big} = partition(pivot, a1, lteq)
+            {small, big} = partition_org(pivot, a1, lteq)
             {small, [big, y, [a2, x, b]]}
           end
       end

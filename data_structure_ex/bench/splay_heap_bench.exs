@@ -10,5 +10,4 @@ defmodule SplayHeapBench do
   bench "tail call" do
     DataStructureEx.SplayHeap.from_list(@nums)
   end
-
 end
